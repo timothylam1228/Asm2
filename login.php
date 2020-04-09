@@ -38,7 +38,8 @@ if (isset($_POST["user_name"]) && isset($_POST["password"])) {
         }
       }
       else {
-      	echo "<h2>Invalid username/password!</h2>";
+        echo "<h2>Invalid username/password!</h2>";
+        echo "<h2>Invalid username/password!</h2>";
       }
 
 	$conn->close();
