@@ -1,23 +1,36 @@
-
+<?php
+$nameErr = $emailErr = $genderErr = $websiteErr = "";
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (empty($_POST["user_name"])) {
+    $nameErr = "Name is required";
+  }
+}
+?>
 
 <form action="create_user.php" method="POST">
 <h1>Create User</h1>
-Username:
-<input type="text" name="user_name"><br>
-First Name:
-<input type="text" name="first_name"><br>
-Last Name
-<input type="text" name="last_name"><br>
-Password:
-<input type="text" name="loginpassword"><br>
-Re-enter Password
-<input type="text" name="re_password"><br>
+Username:<br>
+<input type="text" name="user_name">
+<span class="error">* <?php echo $nameErr;?></span><br><br>
+First Name:<br>
+<input type="text" name="first_name"><br><br>
+Last Name<br>
+<input type="text" name="last_name"><br><br>
+Password:<br>
+<input type="text" name="loginpassword"><br><br>
+Re-enter Password:<br>
+<input type="text" name="re_password"><br><br>
 <input type="submit">
 </form>
 
 
 <?php
 if(isset($_POST["user_name"])){
+  if(!empty($_POST["user_name"])){
+
+
+
+ 
     $servername = "localhost:3306";
     $username = "root";
     $password = "password";
@@ -56,15 +69,17 @@ if(isset($_POST["user_name"])){
     $conn->close();
 }
 
+}
+
 ?>
 <style>form {
   margin:0 auto;
-  width:300px
+  width:450px
 }
 input {
   margin-bottom:3px;
   padding:10px;
-  width: 100%;
+  width: 70%;
   border:1px solid #CCC
 }
 button {
@@ -84,4 +99,8 @@ label {
 }
 #form-switch:checked~#login-form {
   display:none
-}</style>
+
+}
+
+.error {color: #FF0000;}
+</style>
