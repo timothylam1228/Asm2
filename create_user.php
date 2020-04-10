@@ -1,8 +1,11 @@
 <?php
-$nameErr = $emailErr = $genderErr = $websiteErr = "";
+$nameErr = $passErr = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (empty($_POST["user_name"])) {
     $nameErr = "Name is required";
+  }
+  if (empty($_POST["loginpassword"])) {
+    $passErr = "Password is required";
   }
 }
 ?>
@@ -17,7 +20,7 @@ First Name:<br>
 Last Name<br>
 <input type="text" name="last_name"><br><br>
 Password:<br>
-<input type="text" name="loginpassword"><br><br>
+<input type="text" name="loginpassword">* <?php echo $passErr;?></span><br><br>
 Re-enter Password:<br>
 <input type="text" name="re_password"><br><br>
 <input type="submit">
@@ -33,9 +36,9 @@ if(isset($_POST["user_name"])){
  
     $servername = "localhost:3306";
     $username = "root";
-    $password = "password";
+    $serverpassword = "password";
     
-    $conn  = new mysqli($servername,$username,$password);
+    $conn  = new mysqli($servername,$username,$serverpassword);
     if($conn->connect_error){
         echo "2";
     }

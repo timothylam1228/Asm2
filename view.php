@@ -3,12 +3,9 @@
 session_start();
 $password =  $_SESSION['password'];
 $userloginname =  $_SESSION['username'];
-
-echo  '<h1>Welcome, '.$userloginname.'</h1>';
+echo $_GET['noteid'];
 ?>
-<form action="main.php">
-      <input type=button onClick="location.href='create_note.php'" value="Create notes">
- <br><br></form>  
+
 <?php
    $servername = "localhost:3306";
    $username = "root";
@@ -28,24 +25,12 @@ echo  '<h1>Welcome, '.$userloginname.'</h1>';
       }
 
       if ($resultSet->num_rows > 0) {
-        echo '<table>
-        <tr>
-          <th></th>
-            <th>Title</th>
-            <th>Content</th>
-        </tr>';
 
-       while( $row = $resultSet ->fetch_assoc()){ //fetch a result row as an associative array
-        echo $row["noteid"];
-        $noteid = $row["noteid"];
-        echo'<tr>
-            <td> '.$row["noteid"].'</td>
-            <td> <a href="view.php?noteid="'.$noteid.'" "> '.$row["title"].'</a> </td>
-            <td>'.$row["content"].'</td>
-            </tr>';
-
-       }
-        echo '</table>;';
+       $row = $resultSet ->fetch_assoc(); //fetch a result row as an associative array
+        
+      echo '<h2> '.$row["title"].'</h2>';
+       
+      
       }
       else {
       	echo "No note is created";

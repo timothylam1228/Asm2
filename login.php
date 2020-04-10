@@ -11,12 +11,13 @@ Password:
 
 
 <?php
+session_start();
 if (isset($_POST["user_name"]) && isset($_POST["password"])) {
    $servername = "localhost:3306";
    $username = "root";
-   $password = "password";
+   $serverpassword = "password";
    // Create connection
-   $conn = new mysqli($servername, $username, $password);
+   $conn = new mysqli($servername, $username, $serverpassword);
    // Check connection
    if ($conn->connect_error) {
 		die("Connection failed: " . $conn->connect_error);
@@ -33,7 +34,9 @@ if (isset($_POST["user_name"]) && isset($_POST["password"])) {
       if ($resultSet->num_rows > 0) {
         $row = $resultSet ->fetch_row(); //fetch a result row as an associative array
         if($row[0]==$loginpassword){
-         
+
+          $_SESSION['username'] = $_POST["user_name"];
+          $_SESSION['password'] = $password;
           header( "Location: main.php" );
         }
       }
