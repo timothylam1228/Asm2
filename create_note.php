@@ -1,4 +1,17 @@
+
 <?php
+session_start();
+$password =  $_SESSION['password'];
+$userloginname =  $_SESSION['username'];
+if (!(isset($_SESSION['username']) && $_SESSION['username'] != '')) {
+  header ("Location: login.php");
+  }
+?>
+
+
+
+<?php
+
 $titleErr = $contentErr = $encrypassErr = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (empty($_POST["title"])) {
@@ -37,9 +50,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 <?php
-session_start();
-$userloginname =  $_SESSION['username'];
-$password = $_SESSION['password'];
 if (isset($_POST["title"]) && isset($_POST["content"])) {
   if (!empty($_POST["title"]) && !empty($_POST["content"])) {
     $servername = "localhost:3306";
@@ -64,8 +74,8 @@ if (isset($_POST["title"]) && isset($_POST["content"])) {
 
 
     if ($temp ==1) {
-      $sql = "INSERT INTO 18022038d.notes (`title`, `content`, `encrypted`,`username`)
-    VALUES ('$title', AES_ENCRYPT('$content',SHA2('$combinded',256),'$salt'), '".$_POST["encryptcheck"]."', '$userloginname')";
+      $sql = "INSERT INTO 18022038d.notes (`title`, `content`, `encrypted`,`username`,`salt`)
+    VALUES ('$title', AES_ENCRYPT('$content',SHA2('$combinded',256),'$salt'), '".$_POST["encryptcheck"]."', '$userloginname', '$salt')";
     } else {
       $sql = "INSERT INTO 18022038d.notes (`title`, `content`, `encrypted`,`username`)
       VALUES ('$title', '$content', '$temp', '$userloginname' )";

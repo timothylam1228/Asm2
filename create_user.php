@@ -40,9 +40,9 @@ if(isset($_POST["user_name"])){
     
     $conn  = new mysqli($servername,$username,$serverpassword);
     if($conn->connect_error){
-        echo "2";
+        echo "Error connecting to database";
     }
-    echo "nivc";
+
     $loginusername =  $_POST["user_name"];
     $firstname =  $_POST["first_name"];
     $lastname =  $_POST["last_name"];
