@@ -3,8 +3,7 @@ session_start();
 $_SESSION['decrypass']="";
 $password =  $_SESSION['password'];
 $userloginname =  $_SESSION['username'];
-echo  '<h1>Welcome, ' . $userloginname . '</h1>';
-
+echo  '<h1>Welcome, ' . $userloginname . '</h1><br><br>';
 if (!(isset($_SESSION['username']) && $_SESSION['username'] != '')) {
   header("Location: login.php");
 }
@@ -46,8 +45,10 @@ if (!(isset($_SESSION['username']) && $_SESSION['username'] != '')) {
   <label for="decrypt">Decrypt?</label><br><br>
   <div class="password" id="decrypt" style="display:none">
     Decrypt password:
-    <input type="text" name="decrypass" style="width:45%">
-    <input type="submit" style="width:45%">
+    <br>
+    <input type="password" name="decrypass" style="width:49%">
+    <input type="submit" style="width:49.5%" value="Decrypt content">
+    <br><br>
   </div>
 </form>
 
@@ -62,7 +63,7 @@ if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
 }
 $username =  $_SESSION['username'];
-$sql = "SELECT noteid, title, content FROM 18022038d.notes WHERE username='$userloginname';";
+$sql = "SELECT noteid, title, content FROM 18022038d.notes WHERE username='$userloginname' order by noteid DESC  ;";
 $resultSet = $conn->query($sql);
 if (!$resultSet) {
   trigger_error('Invalid query: ' . $conn->error);
@@ -88,8 +89,9 @@ if ($resultSet->num_rows > 0) {
     if (!empty($_POST['decrypass'])) {
       $decrypass = $_POST['decrypass'];
       $_SESSION['decrypass'] = $decrypass;
-      $sql2 = "SELECT noteid, title ,AES_DECRYPT(content,SHA2(CONCAT('$decrypass',salt),256),salt)  FROM 18022038d.notes WHERE username='$userloginname' and encrypted ='1';";
-      #print_r($sql2);
+      $sql2 = "SELECT noteid, title , AES_DECRYPT(content,SHA2(CONCAT(salt,'$decrypass'),256),salt)  
+      FROM 18022038d.notes WHERE username='$userloginname' and encrypted ='1' order by noteid DESC;";
+     # print_r($sql2);
       $resultSet2 = $conn->query($sql2);
       #print_r($resultSet2);
       if (!$resultSet2) {
@@ -102,31 +104,25 @@ if ($resultSet->num_rows > 0) {
               <tr>
                 <th>Note ID</th>
                   <th>Title</th>
-                  <th>Content</th>
               </tr>';
         $array = array();
         #while ($row2 = $resultSet2->fetch_all()) { //fetch a result row as an associative array
         $row2 = $resultSet2->fetch_all();
-
         for ($int = 0; $int < sizeof($row2); $int++) {
-
           if ($row2[$int][2] != null) {
-            
             $noteid2 = $row2[$int][0];
             echo '<tr>
                   <td> ' . $noteid2 . '</td>
                   <td> <a href="view.php?noteid=' . $noteid2 . '"> ' . $row2[$int][1] . '</a> </td>
-                  <td> ' . $row2[$int][2] . ' </td>
                   </tr>';
           }
         }
       }
       echo '</table>';
-      # }
     }
   }
 } else {
-  echo "No note is created";
+  echo "<h3>No note is created</h3>";
 }
 
 $conn->close();
@@ -141,15 +137,13 @@ $conn->close();
       <div class="result" style="width:100%"></div>
 </body>
 
-<form method="post" action="logout.php">
-  <label class="logoutLblPos">
-    <input name="submit2" type="submit" id="submit2" value="logout">
-  </label>
-</form>
+<br></br>
+  <input type=button onClick="location.href='logout.php'" value='Logout'>
 <style>
-  h1 {
+  h1,h3 {
     margin: 0 auto;
-    width: 300px
+    width: 300px;
+    white-space: nowrap;
   }
 
   table {

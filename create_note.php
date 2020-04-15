@@ -1,17 +1,14 @@
-
 <?php
 session_start();
 $password =  $_SESSION['password'];
 $userloginname =  $_SESSION['username'];
 if (!(isset($_SESSION['username']) && $_SESSION['username'] != '')) {
-  header ("Location: login.php");
-  }
+  header("Location: login.php");
+}
 ?>
 
 
-
 <?php
-
 $titleErr = $contentErr = $encrypassErr = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (empty($_POST["title"])) {
@@ -25,7 +22,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   }
 }
 ?>
-
 <form action="create_note.php" method="POST">
   <h1>Create note</h1>
   Title:<br>
@@ -36,15 +32,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <span class="error">* <?php echo $contentErr; ?></span><br><br>
   <input type="checkbox" name="encryptcheck" id="encryptcheck" value="1" style="width: auto" onclick="myFunction() ">
   <label for="encrypt">Encrypt?</label><br><br>
-
   <div class="password" id="encry" style="display:none">
     Encrypt password:
     <br>
-    <input type="text" name="encry">
+    <input type="password" name="encry">
     <span class="error">* <?php echo $encrypassErr; ?></span><br><br>
   </div>
   <br>
-  <input type="submit">
+  <input type="submit" value="Create">
 </form>
 
 
@@ -62,33 +57,41 @@ if (isset($_POST["title"]) && isset($_POST["content"])) {
     }
     $title = $_POST["title"];
     $content = $_POST["content"];
-    $salt = bin2hex(random_bytes(16));
-    $combinded = $content.$salt;
-    if(isset($_POST['encryptcheck'])){
+    $salt = random_bytes(16);
+    if (isset($_POST['encryptcheck'])) {
       $temp = 1;
-    
-    }else{
+    } else {
       $temp = 0;
-    
     }
+    $combinded = $salt . $password;
 
+    if ($temp == 1 && $_POST["encry"] != $password) {
+      #$sql = "INSERT INTO 18022038d.notes (`title`, `content`, `encrypted`,`username`,`salt`)
+      #VALUES ('$title', AES_ENCRYPT('$content',SHA2('$combinded',256),'$salt'), '" . $_POST["encryptcheck"] . "', '$userloginname', '$salt')";
+      #print_r($sql);
+      $stmt = $conn->prepare("INSERT INTO 18022038d.notes (`title`, `content`, `encrypted`,`username`,`salt`)
+      VALUES (?, AES_ENCRYPT('$content',SHA2('$combinded',256),'$salt'), ?, ?, ?)");
+      $stmt->bind_param("ssss", $title, $temp, $userloginname, $salt);
 
-    if ($temp ==1) {
-      $sql = "INSERT INTO 18022038d.notes (`title`, `content`, `encrypted`,`username`,`salt`)
-    VALUES ('$title', AES_ENCRYPT('$content',SHA2('$combinded',256),'$salt'), '".$_POST["encryptcheck"]."', '$userloginname', '$salt')";
-    } else {
-      $sql = "INSERT INTO 18022038d.notes (`title`, `content`, `encrypted`,`username`)
-      VALUES ('$title', '$content', '$temp', '$userloginname' )";
+    } else if ($temp == 1 && $_POST["encry"] == $password) {
+      echo '<h3>encrypt password cannot same as login password</h3>';
+    } else if ($temp == 0) {
+      #$sql = "INSERT INTO 18022038d.notes (`title`, `content`, `encrypted`,`username`)
+      #VALUES ('$title', '$content', '$temp', '$userloginname' )";
+      $stmt = $conn->prepare("INSERT INTO 18022038d.notes (`title`, `content`, `encrypted`,`username`)
+        VALUES (?, ?, ?, ? )");
+      $stmt->bind_param("ssss", $title, $content, $temp, $userloginname);
     }
-   
-  if ($conn->query($sql) === TRUE) {
-      echo "New record created successfully";   
-      echo "<script type='text/javascript'>alert('Add success');</script>";
-      header("refresh:0.3;url=main.php");
-    } else {
-      echo "Error: " . $sql . "<br>" . $conn->error;
+    if (isset($stmt)) {
+      if ($stmt->execute() === TRUE) {
+        echo "New record created successfully";
+        echo "<script type='text/javascript'>alert('Add success');</script>";
+        header("refresh:0.3;url=main.php");
+      } else {
+        echo "Error:  <br>" . $conn->error;
+      }
+      $conn->close();
     }
-    $conn->close();
   }
 }
 
@@ -96,6 +99,12 @@ if (isset($_POST["title"]) && isset($_POST["content"])) {
 
 ?>
 <style>
+  h3 {
+    margin: 0 auto;
+    color: #FF0000;
+    width: 480px;
+  }
+
   form {
     margin: 0 auto;
     width: 480px

@@ -19,8 +19,10 @@ if (!(isset($_SESSION['username']) && $_SESSION['username'] != '')) {
 		die("Connection failed: " . $conn->connect_error);
     }
     $username =  $_SESSION['username'];
+
     $noteid = $_GET['noteid'];
-    $sql = "SELECT noteid, title, content ,salt, encrypted FROM 18022038d.notes WHERE noteid='$noteid';";
+
+    $sql = "SELECT noteid, title, content, TO_BASE64(content) ,salt, encrypted FROM 18022038d.notes WHERE noteid='$noteid' and username ='$userloginname';";
     
     $resultSet = $conn->query($sql);
       if (!$resultSet) {
@@ -32,25 +34,26 @@ if (!(isset($_SESSION['username']) && $_SESSION['username'] != '')) {
       if($row['encrypted']==1){
 
         echo '<h2> '.$row["title"].'</h2><br>';
-
+        echo '<h2> '.$row["TO_BASE64(content)"].'</h2><br>';
         echo '<p>Your content is encrypted, please enter password to decrypt it</p><br></br>';
         ?>
         
         <form action="" method="POST">
         Password:
-        <input type="text" name="password"><br></br>
-        <input type="submit">
+        <input type="password" name="password"><br></br>
+        <input type="submit" value="Decrypt">
         </form>
 
         <?php
         if(isset($_POST["password"])){
           $decrypass = $_POST["password"];
           $salt = $row['salt'];
-          $sql2 = "SELECT AES_DECRYPT(content,SHA2(CONCAT('$decrypass',salt),256),salt)  FROM 18022038d.notes WHERE noteid='$noteid';";
+          $sql2 = "SELECT AES_DECRYPT(content,SHA2(CONCAT(salt,'$decrypass'),256),salt)  FROM 18022038d.notes WHERE noteid='$noteid';";
           $resultSet = $conn->query($sql2);
           $DecryptedContent = ($resultSet->fetch_row())[0];
+          #print_r($sql2);
           if($DecryptedContent==null){
-            echo '<h3>Decrypt password not correct</h3>';
+            echo '<span>Decrypt password not correct</span>';
           }else{
           echo '<h3> Decrypted content: </h3><br>';
           echo '<h3> '.$DecryptedContent.'</h3><br>';
@@ -60,10 +63,8 @@ if (!(isset($_SESSION['username']) && $_SESSION['username'] != '')) {
       }else{
      //fetch a result row as an associative array
         
-      echo '<h2> '.$row["title"].'</h2><br>';
+      echo '<h1> '.$row["title"].'</h1><br>';
       echo '<h3> '.$row["content"].'</h3><br>';
-
-      
       }
       echo'<br></br>';
       echo '<form action="" method="POST">';
@@ -78,6 +79,12 @@ if (!(isset($_SESSION['username']) && $_SESSION['username'] != '')) {
 
 
 <style>
+  span{
+    margin:0 auto;
+    width:300px;
+    color: red;
+    display: block;
+  }
   h1,h2,h3,p {
     margin:0 auto;
     width:300px

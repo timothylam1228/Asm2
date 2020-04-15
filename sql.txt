@@ -2,7 +2,7 @@ CREATE SCHEMA `18022038d` ;
 
 
 
-CREATE TABLE `user`
+CREATE TABLE `18022038d`.`user`
 (
  `username`  varchar(45) NOT NULL ,
  `firstname` varchar(100) NOT NULL ,
@@ -14,27 +14,18 @@ PRIMARY KEY (`username`)
 );
 
 
-
-
-
-
-CREATE TABLE `notes`
+CREATE TABLE `18022038d`.`notes`
 (
  `noteid`    int NOT NULL AUTO_INCREMENT ,
- `title`     varchar(45) NOT NULL ,
- `content`   varchar(45) NOT NULL ,
+ `title`     varchar(1000) NOT NULL ,
+ `content`   BLOB ,
  `encrypted` tinyint NULL ,
  `username`  varchar(45) NOT NULL ,
+ `salt` BLOB NULL,
 
 PRIMARY KEY (`noteid`),
 KEY `fkIdx_24` (`username`),
 CONSTRAINT `FK_24` FOREIGN KEY `fkIdx_24` (`username`) REFERENCES `user` (`username`)
 );
-
-
-ALTER TABLE `18022038d`.`notes` 
-ADD COLUMN `salt` BLOB NULL AFTER `username`;
-
-
 
 

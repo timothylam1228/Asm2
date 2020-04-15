@@ -4,8 +4,9 @@
 Username:
 <input type="text" name="user_name"><br>
 Password:
-<input type="text" name="password"><br></br>
-<input type="submit">
+<input type="password" name="password"><br></br>
+<input type="submit" value="Login">
+<br><br>
 <input type=button onClick="location.href='create_user.php'" value='Create user'>
 </form>
 
@@ -23,26 +24,35 @@ if (isset($_POST["user_name"]) && isset($_POST["password"])) {
 		die("Connection failed: " . $conn->connect_error);
     }
     $loginpassword = $_POST["password"];
-	$sql = "SELECT AES_DECRYPT(password,SHA2(CONCAT('$loginpassword',salt),256),salt) FROM 18022038d.user WHERE username='"
-		.$_POST["user_name"]."';";
+    $userloginname = $_POST["user_name"];
 
-    $resultSet = $conn->query($sql);
+    $sql = "SELECT AES_DECRYPT(password,SHA2(CONCAT('$loginpassword',salt),256),salt) FROM 18022038d.user WHERE username=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $userloginname);
+    #print_r($stmt);
+    $stmt->execute();
+      $resultSet = $stmt->get_result();
       if (!$resultSet) {
       trigger_error('Invalid query: ' . $conn->error);
       }
 
-      if ($resultSet->num_rows > 0) {
-        $row = $resultSet ->fetch_row(); //fetch a result row as an associative array
+      if ($resultSet->num_rows > 0 ) {
+        $row = $resultSet ->fetch_row();//fetch a result row as an associative array
+        if($row[0]!=null){
+        print_r ($resultSet);
+         
         if($row[0]==$loginpassword){
-
+          echo $loginpassword;
           $_SESSION['username'] = $_POST["user_name"];
-          $_SESSION['password'] = $password;
+          $_SESSION['password'] = $loginpassword;
           header( "Location: main.php" );
         }
+      }else{
+        echo "<h2 style = \" width:300px; margin: 0 auto\">Invalid password!</h2>";
+      }
       }
       else {
-        echo "<h2>Invalid username/password!</h2>";
-        echo "<h2>Invalid username/password!</h2>";
+        echo "<h2 style = \" width:300px; margin: 0 auto\">Invalid username/password!</h2>";
       }
 
 	$conn->close();

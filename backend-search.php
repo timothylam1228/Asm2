@@ -14,8 +14,11 @@ if($link === false){
 if(isset($_REQUEST["term"])){
     // Prepare a select statement
     if(!empty($decrypass)){
-    $sql2 = "SELECT noteid, title ,AES_DECRYPT(content,SHA2(CONCAT('$decrypass',salt),256),salt)  
-    FROM notes WHERE username='$userloginname' and encrypted ='1' and AES_DECRYPT(content,SHA2(CONCAT('$decrypass',salt),256),salt) LIKE ?";
+ 
+    $sql2 = "SELECT noteid, title ,AES_DECRYPT(content,SHA2(CONCAT(salt,'$decrypass'),256),salt)  
+    FROM notes WHERE username='$userloginname' and encrypted ='1' and AES_DECRYPT(content,SHA2(CONCAT(salt,'$decrypass'),256),salt) LIKE ?";
+
+    #echo $sql2;
     }
        
        $sql = "SELECT noteid, title ,content  
@@ -25,14 +28,11 @@ if(isset($_REQUEST["term"])){
     if($stmt = mysqli_prepare($link, $sql)){
         // Bind variables to the prepared statement as parameters
         mysqli_stmt_bind_param($stmt, "s", $param_term);
-        
         // Set parameters
         $param_term = '%' . $_REQUEST["term"] . '%';
-        
         // Attempt to execute the prepared statement
         if(mysqli_stmt_execute($stmt)){
             $result = mysqli_stmt_get_result($stmt);
-            
             // Check number of rows in the result set
             if(mysqli_num_rows($result) > 0){
                 // Fetch result rows as an associative array
